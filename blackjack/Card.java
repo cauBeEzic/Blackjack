@@ -2,6 +2,8 @@ package blackjack;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import java.io.File;
+import java.net.URL;
 
 public class Card {
 	
@@ -16,19 +18,31 @@ public class Card {
 			
 		}
 		
-		private void createValue() {
-			String[] nameParts = this.name.split("_");
-			this.pts = Integer.parseInt(nameParts[0]);		
+	private void createValue() {
+		String[] nameParts = this.name.split("_");
+		int rank = Integer.parseInt(nameParts[0]);
+		if (rank == 1) {
+			this.pts = 1; // Ace, can be 1 or 11 (handled in Hand)
+		} else if (rank >= 11) {
+			this.pts = 10; // Face cards
+		} else {
+			this.pts = rank;
 		}
-		private void spawnImage() {
-			try {
-			this.icon = new ImageIcon(Card.class.getResource("/imagesCard/" + this.name));
-			// "/imagesCard/2_clubs.png"
-			} catch (NullPointerException e) {
-				JOptionPane.showMessageDialog(null, "Images not found");
-				System.exit(0);
-			}
+	}
+	private void spawnImage() {
+		URL resource = Card.class.getResource("/imagesCard/" + this.name);
+		if (resource != null) {
+			this.icon = new ImageIcon(resource);
+			return;
 		}
+		File local = new File("imagesCard", this.name);
+		if (local.exists()) {
+			this.icon = new ImageIcon(local.getPath());
+			return;
+		}
+		JOptionPane.showMessageDialog(null, "Images not found");
+		System.exit(0);
+	}
 		public String getName() {
 			return this.name;
 		}

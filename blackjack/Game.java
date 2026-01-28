@@ -9,14 +9,11 @@ public class Game extends JFrame {
     private static final long serialVersionUID = 1L;
     public static final int CARD_WIDTH = 100;
     public static final int CARD_HEIGHT = 145;
-    public static final String IMAGE_DIR = "C:\\Users\\vueri\\eclipse-workspace\\MyGuiComp155\\src\\imagesCard\\";
 
     private Deck deck, discarded;
     private Dealer dealer;
     private Player player;
     private int wins, losses, draw;
-    private int playerTurns;
-    private int dealerTurns;
 
     private JButton btnHit, btnStand, btnNext;
     private JLabel[] lblDealerCards, lblPlayerCards;
@@ -26,7 +23,8 @@ public class Game extends JFrame {
         getContentPane().setBackground(new Color(0, 100, 0));
         setTitle("BlackJack");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(900, 650);
+        setLocationRelativeTo(null);
         getContentPane().setLayout(null); // Absolute positioning
 
         deck = new Deck(true);
@@ -45,14 +43,14 @@ public class Game extends JFrame {
         btnHit = new JButton("Hit");
         btnHit.setFont(new Font("Tahoma", Font.BOLD, 18));
         btnHit.setBackground(Color.GREEN);
-        btnHit.setBounds(569, 250, 75, 50);
+        btnHit.setBounds(540, 230, 75, 50);
         btnStand = new JButton("Stand");
         btnStand.setFont(new Font("Tahoma", Font.BOLD, 18));
         btnStand.setBackground(Color.RED);
-        btnStand.setBounds(650, 250, 100, 50);
+        btnStand.setBounds(620, 230, 100, 50);
         btnNext = new JButton("Next Round");
         btnNext.setFont(new Font("Tahoma", Font.PLAIN, 18));
-        btnNext.setBounds(587, 310, 140, 35);
+        btnNext.setBounds(560, 290, 140, 35);
         btnNext.setVisible(false);
 
         getContentPane().add(btnHit);
@@ -64,7 +62,7 @@ public class Game extends JFrame {
         lblPlayerCards = new JLabel[11];
 
         //starting position of the cards
-        int initialCardX = 10, initialCardY = 150;
+        int initialCardX = 10, initialCardY = 130;
 
         // next position of the cards
         for (int i = 0; i < lblDealerCards.length; i++) {
@@ -82,11 +80,11 @@ public class Game extends JFrame {
         }
 
         lblScore = new JLabel("[Wins: 0]   [Losses: 0]   [Pushes: 0]");
-        lblScore.setBounds(450, 10, 300, 50);
+        lblScore.setBounds(420, 10, 320, 50);
         getContentPane().add(lblScore);
 
         lblGameMessage = new JLabel("Round Start! Hit or Stand?");
-        lblGameMessage.setBounds(450, 200, 300, 40);
+        lblGameMessage.setBounds(400, 180, 420, 40);
         lblGameMessage.setFont(new Font("Arial", 1, 20));
         getContentPane().add(lblGameMessage);
 
@@ -94,8 +92,8 @@ public class Game extends JFrame {
         lblDealerHandVal.setFont(new Font("Tahoma", Font.PLAIN, 16));
         lblPlayerHandVal = new JLabel("Player's Hand Value:");
         lblPlayerHandVal.setFont(new Font("Tahoma", Font.PLAIN, 16));
-        lblDealerHandVal.setBounds(20, 280, 300, 50);
-        lblPlayerHandVal.setBounds(20, 530, 300, 50);
+        lblDealerHandVal.setBounds(20, 260, 300, 50);
+        lblPlayerHandVal.setBounds(20, 510, 300, 50);
         getContentPane().add(lblDealerHandVal);
         getContentPane().add(lblPlayerHandVal);
 
@@ -107,17 +105,9 @@ public class Game extends JFrame {
         btnHit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	
                 player.hit(deck, discarded);
                 updateScreen();
-                checkBusts();
-                checkPlayer33();
-                playerTurns++;
-                System.out.println(playerTurns);
-                if (playerTurns == 4) {
-                	dealerTurns=1;
-                	dealersTurn();
-                }
+                checkPlayerEndState();
             }
         });
 
@@ -125,7 +115,6 @@ public class Game extends JFrame {
         btnStand.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	
                 dealersTurn();
                 //start dealer's turns
             }
@@ -137,31 +126,36 @@ public class Game extends JFrame {
                 btnNext.setVisible(false);
                 btnHit.setVisible(true);
                 btnStand.setVisible(true);
-                playerTurns = 0;
-                dealerTurns = 0;
                 startRound();
             }
         });
     }
 
-    private void checkBusts() {
-        if (player.getHand().calculatedValue() > 33) {
-            lblGameMessage.setText("You BUST - Over 33");
+    private void checkPlayerEndState() {
+        int playerValue = player.getHand().calculatedValue();
+        if (playerValue > 21) {
+            lblGameMessage.setText("You bust - Over 21");
             losses++;
-            btnHit.setVisible(false);
-            btnStand.setVisible(false);
-            btnNext.setVisible(true);
+            endRound();
+        } else if (playerValue == 21) {
+            lblGameMessage.setText("You have 21!");
+            wins++;
+            endRound();
+        } else if (player.getHand().getHandSize() >= 5) {
+            lblGameMessage.setText("Five-card win!");
+            wins++;
+            endRound();
         }
     }
 
     private void checkWins() {
-        lblDealerHandVal.setText("Dealer's hand value: " + dealer.getHand().calculatedValue());
+        lblDealerHandVal.setText("Dealer's Hand Value: " + dealer.getHand().calculatedValue());
 
         String message;
         int dealerValue = dealer.getHand().calculatedValue();
         int playerValue = player.getHand().calculatedValue();
 
-        if (dealerValue > 33) {
+        if (dealerValue > 21) {
             message = "Dealer Busts! You win!";
             wins++;
         } else if (dealerValue > playerValue) {
@@ -179,32 +173,16 @@ public class Game extends JFrame {
         lblScore.setText("[Wins: " + wins + "]   [Losses: " + losses + "]   [Draws: " + draw + "]");
     }
 
-    private void checkPlayer33() {
-        if (player.getHand().calculatedValue() == 33) {
-            lblGameMessage.setText("You have 33!");
-            wins++;
-            btnHit.setVisible(false);
-            btnStand.setVisible(false);
-            btnNext.setVisible(true);
-        }
-    }
-
     private void dealersTurn() {
-        while (dealer.getHand().calculatedValue() < 29 && dealerTurns < 4) {
+        while (dealer.getHand().calculatedValue() < 17) {
             dealer.hit(deck, discarded);
-   
-            dealerTurns++;
         }
      // update screen after dealer's turn
         updateScreen();
         // check win after dealer's turns are over
         checkWins();
-        //print dealer's final hand
-        dealer.printHand(lblDealerCards);
         //disable hit and stand buttons, and show next button
-        btnHit.setVisible(false);
-        btnStand.setVisible(false);
-        btnNext.setVisible(true);
+        endRound();
     }
 
 
@@ -232,20 +210,41 @@ public class Game extends JFrame {
         }
 
         dealer.getHand().takeCardFromDeck(deck);
-        dealer.printHand(lblDealerCards);
+        dealer.getHand().takeCardFromDeck(deck);
+        player.getHand().takeCardFromDeck(deck);
         player.getHand().takeCardFromDeck(deck);
 
         updateScreen();
-        lblDealerHandVal.setText("Dealer's hand value: " + dealer.getHand().getCard(0).getPts());
+        showDealerUpCard();
         lblGameMessage.setText("Starting round! Hit or Stand?");
-        
-
-        playerTurns = 0;
-        dealerTurns = 0;
     }
 
     public static void main(String[] args) {
         Game blackjack = new Game();
         blackjack.setVisible(true);
+    }
+
+    private void endRound() {
+        btnHit.setVisible(false);
+        btnStand.setVisible(false);
+        btnNext.setVisible(true);
+        lblScore.setText("[Wins: " + wins + "]   [Losses: " + losses + "]   [Draws: " + draw + "]");
+        dealer.printHand(lblDealerCards);
+    }
+
+    private void showDealerUpCard() {
+        for (int i = 0; i < lblDealerCards.length; i++) {
+            lblDealerCards[i].setVisible(false);
+        }
+        if (dealer.getHand().getHandSize() > 0) {
+            ImageIcon icon = dealer.getHand().getCard(0).getIcon();
+            if (icon != null) {
+                lblDealerCards[0].setIcon(new ImageIcon(icon.getImage().getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH)));
+            } else {
+                lblDealerCards[0].setIcon(null);
+            }
+            lblDealerCards[0].setVisible(true);
+            lblDealerHandVal.setText("Dealer shows: " + dealer.getHand().getCard(0).getPts());
+        }
     }
 }

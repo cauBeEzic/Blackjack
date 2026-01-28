@@ -1,18 +1,16 @@
 # Modified_Blackjack
 General rules of the game:
-1. It would be a 2-player game: a user/player and a computer auto-player.
-2. 1 single deck of cards (52 cards) will be used in each round of play.
-3. Each player can have a maximum of 5 cards (called a hand) in a round, drawing 1 card 
-in each of the 5 turns in a round. The player can also decide to skip a turn and not 
-have any card in that turn.
-4. The cards have points associated with them: starting from 1 to 13 where Jack, Queen 
-and King are treated as 11, 12 and 13 respectively.
-5. The player with the hand with points closest to 33 will win. 
-6. Any player goes beyond 33 is treated as the looser of that round
+1. It is a 2-player game: a user/player and a computer dealer.
+2. 1 standard deck of cards (52 cards) is used.
+3. The goal is to get as close to 21 as possible without going over (busting).
+4. Card values: 2–10 are face value, Jack/Queen/King are worth 10, Ace is worth 1 or 11.
+5. The player can choose to "Hit" (take a card) or "Stand" (end their turn).
+6. The dealer reveals their hand after the player stands and must hit until at least 17.
+7. If either player goes over 21, that player loses the round.
+8. Optional house rule: if the player holds 5 cards without busting, the player wins the round.
 
 The Game features:
-- when a player gets over 33 points, that round is over immediately; no need to play for 
-whole 5 turns in a round.
+- when a player gets over 21 points, that round is over immediately.
 - the game should keep a score for the players winning each round. The scores will be 
 visible in the interface.
 - After each round, it would ask the user if wants to continue or not.

@@ -40,8 +40,12 @@ public abstract class Person {
             cardPics[i].setVisible(false);
         }
         for(int i = 0; i < this.hand.getHandSize(); i++){
-            String name = this.hand.getCard(i).getName();
-            cardPics[i].setIcon(new ImageIcon(new ImageIcon(Game.IMAGE_DIR + name).getImage().getScaledInstance(Game.CARD_WIDTH, Game.CARD_HEIGHT, Image.SCALE_SMOOTH)));
+            ImageIcon icon = this.hand.getCard(i).getIcon();
+            if (icon != null) {
+                cardPics[i].setIcon(new ImageIcon(icon.getImage().getScaledInstance(Game.CARD_WIDTH, Game.CARD_HEIGHT, Image.SCALE_SMOOTH)));
+            } else {
+                cardPics[i].setIcon(null);
+            }
             cardPics[i].setVisible(true);
         }
 

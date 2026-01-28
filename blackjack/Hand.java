@@ -40,8 +40,16 @@ public class Hand {
     //calculate points
     public int calculatedValue() {
         int value = 0;
+        int aceCount = 0;
         for (Card card : hand) {
             value += card.getPts();
+            if (card.getPts() == 1) {
+                aceCount++;
+            }
+        }
+        while (aceCount > 0 && value + 10 <= 21) {
+            value += 10;
+            aceCount--;
         }
         return value;
     }
