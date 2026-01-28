@@ -1,4 +1,4 @@
-# Modified_Blackjack
+# Blackjack
 General rules of the game:
 1. It is a 2-player game: a user/player and a computer dealer.
 2. 1 standard deck of cards (52 cards) is used.
