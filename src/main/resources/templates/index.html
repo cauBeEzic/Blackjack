@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<div class="table">
+    <header>
+        <h1>Blackjack</h1>
+        <div class="status-block">
+            <p class="status" th:text="${game.statusMessage}">Hit or Stand?</p>
+            <p class="score">Session: <span th:text="${stats.wins}">0</span>W /
+                <span th:text="${stats.losses}">0</span>L /
+                <span th:text="${stats.pushes}">0</span>P</p>
+        </div>
+    </header>
+
+    <section class="hand">
+        <h2>Dealer</h2>
+        <div class="hand-cards">
+            <div class="card-slot" th:each="card, iter : ${game.dealerHand.cards}">
+                <div class="card back" th:if="${!game.dealerRevealed and iter.index == 0}">Hidden</div>
+                <img th:if="${game.dealerRevealed or iter.index != 0}"
+                     th:src="@{/imagesCard/{img}(img=${card.imageName})}"
+                     alt="card">
+            </div>
+        </div>
+        <div class="hand-value">
+            <span>Value: </span>
+            <span th:text="${game.dealerRevealed ? game.dealerHand.value : '?'}">?</span>
+        </div>
+    </section>
+
+    <section class="hand" th:each="hand, iter : ${game.playerHands}">
+        <h2>
+            Player Hand <span th:text="${iter.index + 1}">1</span>
+            <span class="active-hand" th:if="${game.inProgress and iter.index == game.currentHandIndex}">Active</span>
+        </h2>
+        <div class="hand-cards">
+            <div class="card-slot" th:each="card : ${hand.cards}">
+                <img th:src="@{/imagesCard/{img}(img=${card.imageName})}" alt="card">
+            </div>
+        </div>
+        <div class="hand-value">
+            <span>Value: </span>
+            <span th:text="${hand.value}">0</span>
+            <span class="hand-outcome" th:if="${!game.inProgress and game.handOutcomes[iter.index] != null}"
+                  th:text="${game.handOutcomes[iter.index]}">WIN</span>
+        </div>
+    </section>
+
+    <section class="actions">
+        <form th:action="@{/hit}" method="post">
+            <input type="hidden" name="tabId" th:value="${tabId}">
+            <button type="submit" th:disabled="${!game.inProgress}">Hit</button>
+        </form>
+        <form th:action="@{/stand}" method="post">
+            <input type="hidden" name="tabId" th:value="${tabId}">
+            <button type="submit" th:disabled="${!game.inProgress}">Stand</button>
+        </form>
+        <form th:action="@{/split}" method="post">
+            <input type="hidden" name="tabId" th:value="${tabId}">
+            <button type="submit" th:disabled="${!game.inProgress or !game.canSplitCurrentHand}">Split</button>
+        </form>
+        <form th:action="@{/new}" method="post">
+            <input type="hidden" name="tabId" th:value="${tabId}">
+            <button type="submit" th:text="${game.inProgress} ? 'New Game' : 'Play Again'">Play Again</button>
+        </form>
+    </section>
+</div>
+<script th:inline="javascript">
+    const serverTabId = /*[[${tabId}]]*/ "";
+    const storedTabId = sessionStorage.getItem("blackjackTabId");
+    if (!storedTabId) {
+        sessionStorage.setItem("blackjackTabId", serverTabId);
+    } else if (storedTabId !== serverTabId) {
+        window.location.replace(`/?tabId=${encodeURIComponent(storedTabId)}`);
+    }
+</script>
+</body>
+</html>
