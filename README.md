@@ -1,60 +1,87 @@
-# Blackjack (Spring Boot)
+# Modified Blackjack
 
-A simple Blackjack web app built with Spring Boot (Java 17) and Thymeleaf. The legacy Swing UI has been moved to `legacy/` and is no longer used.
+## 1) What it is
+This is a Spring Boot + Thymeleaf Blackjack web app with game rules handled on the server.  
+The active implementation is under `src/main`, and the older Swing version is kept in `legacy/`.
 
-## Rules
-- Standard Blackjack: get as close to 21 as possible without going over.
-- Card values: 2–10 are face value, J/Q/K are worth 10, Ace is 1 or 11.
-- Player can Hit or Stand.
-- Dealer hits until total >= 17 (stands on all 17).
-- Busting over 21 loses the round.
-- Optional house rule included: if the player holds 5 cards without busting, the player wins.
-- Splitting is supported when the first two cards are the same rank (re-splitting allowed).
+## 2) Demo
+Working on deploying.  
+There is no public live URL yet; next step is deploying the Dockerized app to a hosted service.  
+For now, run it locally (section 7) and open `http://localhost:10000`.
 
-## Project layout
-- `src/main/java/com/caubeezic/blackjack/domain` – game logic
-- `src/main/java/com/caubeezic/blackjack/web` – web controller
-- `src/main/resources/templates` – Thymeleaf UI
-- `src/main/resources/static/imagesCard` – card images
-- `legacy/` – old Swing UI (unused)
+## 3) Features
+- Server-side Blackjack engine with a shuffled 52-card deck.
+- Hand scoring with Ace as 1 or 11.
+- Player actions: `Hit`, `Stand`, `Split`, and `New Game/Play Again`.
+- Split support for matching ranks or any two 10-value cards.
+- Multi-hand flow after split with active-hand tracking.
+- Dealer hole card is hidden until player turns are done.
+- Dealer draws until hand value is at least 17.
+- Round outcomes tracked per hand: `WIN`, `LOSE`, `BUST`, `PUSH`, `BLACKJACK`.
+- Session scoreboard tracked using HttpSession and a tabId to separate concurrent games.
+- House rule: player wins automatically with 5 cards without busting (Five-card Charlie).
+- Health endpoint at `/health`.
 
-## Run locally
+## 4) Why I built this
+I built this to move a classic Blackjack project into a web app and strengthen full-stack Java skills.  
+The focus was clean separation between domain logic and controller/UI layers.  
+It also gave me practice managing per-tab session state and running the app via a multi-stage Dockerfile.
 
+## 5) What I learned
+- How to model game rules in plain Java domain classes (`GameState`, `Hand`, `Deck`) and keep controllers thin.
+- How to manage independent game sessions per browser tab using `HttpSession` + `tabId`.
+- How to sequence split-hand gameplay and settle each hand result correctly.
+- How to render dynamic game state with Thymeleaf without a frontend framework.
+- How to package and run the app with Maven Wrapper and a multi-stage Dockerfile.
+- Current gap: there are no automated tests in `src/test`; next step is adding JUnit tests for game logic and controller endpoints.
+
+## 6) Tech stack
+- Java 17: core language for game logic and backend code.
+- Spring Boot 3 (Web): HTTP routing, session handling, and app bootstrapping.
+- Thymeleaf: server-rendered UI bound to backend model state.
+- Maven Wrapper (`mvnw`): consistent build/run workflow across environments.
+- CSS + static card image assets: custom responsive game interface.
+- Docker: reproducible build and runtime environment.
+
+## 7) How to run locally
 ```bash
+cd Modified_Blackjack
 ./mvnw spring-boot:run
 ```
 
-To force a port (Render-style):
+Open `http://localhost:10000`
 
-```bash
-PORT=10000 ./mvnw spring-boot:run
+Windows (Command Prompt):
+```bat
+cd Modified_Blackjack
+mvnw.cmd spring-boot:run
 ```
 
-Then open: `http://localhost:10000`
-
-## Build a jar
-
-```bash
-./mvnw -DskipTests package
-java -jar target/blackjack-0.0.1-SNAPSHOT.jar
+## 8) Project structure
+```text
+Modified_Blackjack/
+├── src/
+│   └── main/
+│       ├── java/com/caubeezic/blackjack/
+│       │   ├── BlackjackApplication.java
+│       │   ├── domain/
+│       │   │   ├── Card.java
+│       │   │   ├── Deck.java
+│       │   │   ├── GameState.java
+│       │   │   ├── GameOutcome.java
+│       │   │   ├── Hand.java
+│       │   │   └── Suit.java
+│       │   └── web/
+│       │       ├── BlackjackController.java
+│       │       └── SessionStats.java
+│       └── resources/
+│           ├── application.properties
+│           ├── templates/index.html
+│           └── static/
+│               ├── styles.css
+│               └── imagesCard/
+├── legacy/blackjack/         # older Swing implementation
+├── Dockerfile
+├── pom.xml
+└── mvnw
 ```
-
-## Docker
-
-```bash
-docker build -t blackjack .
-docker run -p 10000:10000 -e PORT=10000 blackjack
-```
-
-Open: `http://localhost:10000`
-
-Health check: `http://localhost:10000/health`
-
-## Render deployment (Docker)
-1. Create a new **Web Service** in Render.
-2. Connect this repo.
-3. Choose **Docker** as the runtime.
-4. Set the port to `10000` (Render uses `$PORT` internally).
-5. Deploy.
-
-Live Demo: (add link here)
