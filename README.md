@@ -7,7 +7,7 @@ The active implementation is under `src/main`, and the older Swing version is ke
 ## 2) Demo
 Working on deploying.  
 There is no public live URL yet; next step is deploying the Dockerized app to a hosted service.  
-For now, run it locally (section 7) and open `http://localhost:10000`.
+For now, run it locally and open `http://localhost:10000`.
 
 ## 3) Features
 - Server-side Blackjack engine with a shuffled 52-card deck.
